@@ -19,8 +19,10 @@ end
 #j.valida_peca(5,0,4,1,1)
 
 ##### testes ##### informar linha coluna linha coluna time (podendo ser 0 ou 1)
+=begin
 j.valida_peca(2,1,3,0,2)
 j.valida_peca(5,0,4,1,1)
 j.valida_peca(2,3,3,2,2)
 j.valida_peca(4,1,3,2,1)
+=end
 j.jogo.mostra_campo
