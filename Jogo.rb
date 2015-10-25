@@ -3,87 +3,82 @@ require 'colorize'
 
 class Jogo
 
-	attr_accessor :queen1
-	attr_accessor :queen2
-	attr_accessor :jogo
-	attr_reader :jog1
-	attr_reader :jog2
-	attr_reader :preto
+	attr_accessor :queen1, :queen2, :jogo, :pecas1, :pecas2
+	attr_reader :jog1,	:jog2, :preto
 
-	def initialize()
+	def initialize
 		@jogo = Tabuleiro.new()
 		@jog1 = "●".red
 		@jog2 = "●".blue
 		@preto = "■".black
+		@pecas1 = @pecas2 = 12
 	end
 
-	def mover_jog1(px,py,mx,my)
-		if (@jogo.tabuleiro[px][py] != @preto)
-			@jogo.tabuleiro[mx][my] = @jog1
-			@jogo.tabuleiro[px][py] = @preto
+	def mover_jog1(p_linha,p_coluna,m_linha,m_coluna)
+		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
+			@jogo.tabuleiro[m_linha][m_coluna] = @jog1
+			@jogo.tabuleiro[p_linha][p_coluna] = @preto
 		end	
 	end
 
-	def mover_jog2(px,py,mx,my)
-		if (@jogo.tabuleiro[px][py] != @preto)
-			@jogo.tabuleiro[mx][my] = @jog2
-			@jogo.tabuleiro[px][py] = @preto
+	def mover_jog2(p_linha,p_coluna,m_linha,m_coluna)
+		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
+			@jogo.tabuleiro[m_linha][m_coluna] = @jog2
+			@jogo.tabuleiro[p_linha][p_coluna] = @preto
 		end	
 	end
 
-	def mover_time(px,py,mx,my,time)
+	def mover_peca(p_linha,p_coluna,m_linha,m_coluna,time)
 		if time == 1
 			#verificar se peca eh do time
 			#verificar se movimento eh valido (se a diagonal ta certa...)
-			if valida_movimento(px,py,mx,my,time) 
-				mover_um(px,py,mx,my)  
-			else 
-				erro(2)
+			if valida_peca(p_linha,p_coluna,m_linha,m_coluna,time)  #se true, valida e movimenta
+				valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
 			end
 		else
 			#verificar se peca eh do time
 			#verificar se movimento eh valido
-			if valida_movimento(px,py,mx,my,time) 
-				mover_dois(px,py,mx,my)  
-			else 
-				erro(2)
+			if valida_peca(p_linha,p_coluna,m_linha,m_coluna,time) 
+				valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
 			end
 		end
 	end
 
-	def valida_peca(px,py,mx,my,time)
+	def valida_peca(p_linha,p_coluna,m_linha,m_coluna,time)
 		if time == 1
-			if @jogo.tabuleiro[px][py] == @jog1
-				valida_movimento(px, py, mx, my,time)
+			if @jogo.tabuleiro[p_linha][p_coluna] == @jog1
+				return true
 			else 
 				erro(1) 
+				return false
 			end
 		else
-			if @jogo.tabuleiro[px][py] == @jog2
-				valida_movimento(px, py, mx, my,time)
+			if @jogo.tabuleiro[p_linha][p_coluna] == @jog2
+				return true
 			else 
 				erro(1) 
+				return false
 			end
 		end
 	end
 
-	def valida_movimento(px, py, mx, my,time)
+	def valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
 		if time ==1
-			if (@jogo.tabuleiro[mx][my] == @preto) && (mx > 0) && (mx < @jogo.tabuleiro.length-1)
-				mover_jog1(px, py, mx, my)
+			if (@jogo.tabuleiro[m_linha][m_coluna] == @preto) && (m_linha > 0) && (m_linha < @jogo.tabuleiro.length-1)
+				mover_jog1(p_linha, p_coluna, m_linha, m_coluna)
 			else 
-				if @jogo.tabuleiro[mx][my] == @jog2
-					comer(px, py, mx, my, time)
+				if @jogo.tabuleiro[m_linha][m_coluna] == @jog2
+					comer(p_linha, p_coluna, m_linha, m_coluna, time)
 				else
 					erro(2)
 				end
 			end
 		else
-			if (@jogo.tabuleiro[mx][my] == @preto) && (mx > 0) && (mx < @jogo.tabuleiro.length-1)
-				mover_jog2(px, py, mx, my)
+			if (@jogo.tabuleiro[m_linha][m_coluna] == @preto) && (m_linha > 0) && (m_linha < @jogo.tabuleiro.length-1)
+				mover_jog2(p_linha, p_coluna, m_linha, m_coluna)
 			else  
-				if @jogo.tabuleiro[mx][my] == @jog1
-					comer(px, py, mx, my, time)
+				if @jogo.tabuleiro[m_linha][m_coluna] == @jog1
+					comer(p_linha, p_coluna, m_linha, m_coluna, time)
 				else
 					erro(2)
 				end
@@ -91,49 +86,60 @@ class Jogo
 		end	
  	end
 
- 	def comer(px, py, mx, my, time) # p = posição atual / m = onde inimigo esta
- 		sentido = define_sentido(px,mx,time)
+ 	def comer(p_linha, p_coluna, m_linha, m_coluna, time) # p = posição atual / m = onde inimigo esta
+ 		sentido = define_sentido(p_coluna,m_coluna,time)
 
  		if time == 1
- 			if sentido == "esquerda" && @jogo.tabuleiro[mx+1][my-1] == @preto 	#comer para a esquerda
- 				@jogo.tabuleiro[mx+1][my-1] = @jog1   ##jogada efetuada
- 				@jogo.tabuleiro[mx][my] = "■".black     ##jogador adversario foi atacado
- 				@jogo.tabuleiro[px][py] = "■".black      ##limpo ultima posicao do jogador que atacou
+ 			decrementa_pecas(time)
+ 			if sentido == "esquerda" && @jogo.tabuleiro[m_linha-1][m_coluna-1] == @preto 	#comer para a esquerda
+ 				@jogo.tabuleiro[m_linha-1][m_coluna-1] = @jog1   ##jogada efetuada
+ 				@jogo.tabuleiro[m_linha][m_coluna] = "■".black     ##jogador adversario foi atacado
+ 				@jogo.tabuleiro[p_linha][p_coluna] = "■".black      ##limpo ultima posicao do jogador que atacou
  			else
- 				sentido == "direita" && @jogo.tabuleiro[mx-1][my+1] == @preto 	#comer para a direita
- 				@jogo.tabuleiro[mx-1][my+1] = @jog1
- 				@jogo.tabuleiro[mx][my] = "■".black
- 				@jogo.tabuleiro[px][py] = "■".black
+ 				sentido == "direita" && @jogo.tabuleiro[m_linha-1][m_coluna+1] == @preto 	#comer para a direita
+ 				@jogo.tabuleiro[m_linha-1][m_coluna+1] = @jog1
+ 				@jogo.tabuleiro[m_linha][m_coluna] = "■".black
+ 				@jogo.tabuleiro[p_linha][p_coluna] = "■".black
  			end
  		else
- 			if sentido == "esquerda" && @jogo.tabuleiro[mx-1][my+1] == @preto 	#comer para a esquerda
- 				@jogo.tabuleiro[mx-1][my+1] = @jog1   ##jogada efetuada
- 				@jogo.tabuleiro[mx][my] = "■".black
- 				@jogo.tabuleiro[px][py] = "■".black
+ 			decrementa_pecas(time)
+ 			if sentido == "esquerda" && @jogo.tabuleiro[m_linha+1][m_coluna+1] == @preto 	#comer para a esquerda
+ 				@jogo.tabuleiro[m_linha+1][m_coluna+1] = @jog2   ##jogada efetuada
+ 				@jogo.tabuleiro[m_linha][m_coluna] = "■".black
+ 				@jogo.tabuleiro[p_linha][p_coluna] = "■".black
  			else
- 				sentido == "direita" && @jogo.tabuleiro[mx+1][my-1] == @preto 	#comer para a direita
- 				@jogo.tabuleiro[mx+1][my-1] = @jog1
- 				@jogo.tabuleiro[mx][my] = "■".black
- 				@jogo.tabuleiro[px][py] = "■".black
+ 				sentido == "direita" && @jogo.tabuleiro[m_linha+1][m_coluna-1] == @preto 	#comer para a direita
+ 				@jogo.tabuleiro[m_linha+1][m_coluna-1] = @jog2
+ 				@jogo.tabuleiro[m_linha][m_coluna] = "■".black
+ 				@jogo.tabuleiro[p_linha][p_coluna] = "■".black
  			end
  		end
  	end
-
- 	def define_sentido(px,mx,time)
+ 	
+ 	def define_sentido(p_coluna,m_coluna,time)
  		if time == 1
- 		 	if px < mx 
+ 		 	if p_coluna < m_coluna
  		 		return "direita"
  			else 
  				return "esquerda"
  			end
  		else
- 			if px < mx 
+ 			if p_coluna < m_coluna 
  				return "esquerda"
  			else 
  				return "direita"
  			end
  		end
  	end
+
+ 	def decrementa_pecas(time)
+ 		if time == 1
+ 			@pecas2 -= 1
+ 		else
+ 			@pecas1 -= 1
+ 		end
+ 	end
+
 
  	def erro(op)
  		case op

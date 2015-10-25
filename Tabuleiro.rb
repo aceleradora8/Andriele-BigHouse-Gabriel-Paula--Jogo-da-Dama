@@ -7,7 +7,6 @@ class Tabuleiro
 	def initialize
 		@tabuleiro = gera_campo(8,8)
 		cria_time
-		#mostra_campo
 	end
 	
 	def gera_campo(x, y)
@@ -30,17 +29,23 @@ class Tabuleiro
 		return tabuleiro
 	end
 
-	def mostra_campo()
-			
+	def mostra_campo
+		puts "  0 1 2 3 4 5 6 7"
+		linha = 0	
+		print "#{linha} "
 			contador = 0
 			@tabuleiro.each do |x|
 				x.each do |y|
 					contador +=1
-					print y << " "
+					print y + " "
 					if contador == x.length
 						puts
 						contador = 0
 					end
+				end
+				if linha < 7
+					linha += 1
+					print "#{linha} "
 				end
 			end
 
