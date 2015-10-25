@@ -1,4 +1,4 @@
-# Andriele-BigHouse-Gabriel-Paula--Jogo-da-Dama
+# Jogo de Damas
 (Em construção)
 
 Para executar o projeto, utilize o comando ruby main.rb no terminal.
