@@ -1,19 +1,25 @@
 load 'Jogo.rb'
 =begin
 	falta implementar:
-		- controle de erro (se jogador digitou errado, esta perdendo a vez)
-		- controlar para que a peca coma somente quando estiver ao lado
+		- controle de erro (se jogador digitou errado, esta perdendo a vez) ok
+		- controlar para que a peca coma somente quando estiver ao lado ok
 		- controle para poder comer mais de uma peca (quando possivel)
 		- controle quando vira rainha (desenhar um caractere diferente, sei la)
 		- quando virar rainha, cuidar o sentido (pois ela tb pode voltar casas)
+		- nao deixar comer para tras ok
+
+
+		-A dama não tá comendo
+		-tem peça caminhando errado
 =end
 class Main
 
-	attr_accessor :jogo, :jogador_atual
+	attr_accessor :jogo, :jogador_atual, :troca
 
 	def initialize
 		@main = Jogo.new
 		@jogador_atual = 1
+		@troca = true
 		tela_inicial
 		tela_de_jogo
 	end
@@ -33,12 +39,12 @@ class Main
 		jogando = true
 		while jogando
 			jogada = valida_dados_inseridos
-			@main.mover_peca(jogada[0].to_i,jogada[1].to_i,jogada[2].to_i, jogada[3].to_i, @jogador_atual)
+			@troca = @main.mover_peca(jogada[0].to_i,jogada[1].to_i,jogada[2].to_i, jogada[3].to_i, @jogador_atual)
 			jogando = verifica_estado_do_jogo #se deu certo, trocar turno e dai eh outro jogador
 			system "clear"
 			desenha_tabuleiro
 			puts
-			muda_turno
+			muda_turno()
 		end
 
 		fim_de_jogo
@@ -64,11 +70,13 @@ class Main
 		end
 	end
 
-	def muda_turno
-		if @jogador_atual == 1 
-			@jogador_atual = 2
-		else 
-			@jogador_atual = 1
+	def muda_turno()
+		if @troca
+			if @jogador_atual == 1 
+				@jogador_atual = 2
+			else 
+				@jogador_atual = 1
+			end
 		end
 	end
 
