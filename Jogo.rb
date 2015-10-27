@@ -3,8 +3,6 @@ require 'colorize'
 
 class Jogo
 
-	#♛
-
 	attr_accessor :dama1, :dama2, :jogo, :pecas1, :pecas2
 	attr_reader :jog1,	:jog2, :preto
 
@@ -20,53 +18,29 @@ class Jogo
 		#@dama2 = "♛".blue
 	end
 
-	def mover_jog1(p_linha,p_coluna,m_linha,m_coluna)
-		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
-			@jogo.tabuleiro[m_linha][m_coluna] = @jog1
-			@jogo.tabuleiro[p_linha][p_coluna] = @preto
-		end	
-	end
 
-	def mover_jog2(p_linha,p_coluna,m_linha,m_coluna)
-		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
-			@jogo.tabuleiro[m_linha][m_coluna] = @jog2
-			@jogo.tabuleiro[p_linha][p_coluna] = @preto
-		end	
-	end
-
-	def mover_dama1(p_linha,p_coluna,m_linha,m_coluna)
-		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
-			@jogo.tabuleiro[m_linha][m_coluna] = "♛".red
-			@jogo.tabuleiro[p_linha][p_coluna] = @preto
-		end	
-	end
-
-	def mover_dama2(p_linha,p_coluna,m_linha,m_coluna)
-		if (@jogo.tabuleiro[p_linha][p_coluna] != @preto)
-			@jogo.tabuleiro[m_linha][m_coluna] = "♛".blue
-			@jogo.tabuleiro[p_linha][p_coluna] = @preto
-		end	
-	end
-
-	def mover_peca(p_linha,p_coluna,m_linha,m_coluna,time)
-
-		aux = false
-
-		if time == 1
-			#verificar se peca eh do time
-			#verificar se movimento eh valido (se a diagonal ta certa...)
-			if valida_peca(p_linha,p_coluna,m_linha,m_coluna,time)  #se true, valida e movimenta
-				aux = valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
-			end
-		else
-			#verificar se peca eh do time
-			#verificar se movimento eh valido
-			if valida_peca(p_linha,p_coluna,m_linha,m_coluna,time) 
-				aux = valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
-			end
+	def mover(p_linha,p_coluna,m_linha,m_coluna)
+		peca = @jogo.tabuleiro[p_linha][p_coluna]
+		if (peca != @preto)
+			insere_peca(m_linha,m_coluna,peca)
+			insere_peca(p_linha,p_coluna,@preto)
 		end
-		verifica_dama(m_linha, m_coluna, time)
-		return aux
+	end
+
+#mover* -> mover
+#mover_peca -> efetua_jogada
+#verifica_dama -> transforma_em_dama
+
+
+	def efetua_jogada(p_linha,p_coluna,m_linha,m_coluna,time)
+
+		valido = false
+
+		if valida_peca(p_linha,p_coluna,m_linha,m_coluna,time) 
+			valido = valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
+		end
+		transforma_em_dama(m_linha, m_coluna, time)
+		return valido
 	end
 
 	def valida_peca(p_linha,p_coluna,m_linha,m_coluna,time)
@@ -89,36 +63,42 @@ class Jogo
 
 	def valida_movimento(p_linha, p_coluna, m_linha, m_coluna,time)
 		if time ==1
-			diff = p_linha-m_linha
-			if (@jogo.tabuleiro[m_linha][m_coluna] == "■".black) && (m_linha >= 0) && (m_linha <= @jogo.tabuleiro.length-1) && (diff == 1) && @jogo.tabuleiro[p_linha][p_coluna] == @jog1  
-				mover_jog1(p_linha, p_coluna, m_linha, m_coluna)
-				return true
-			elsif (@jogo.tabuleiro[m_linha][m_coluna] == "■".black) && (m_linha >= 0) && (m_linha <= @jogo.tabuleiro.length-1) && @jogo.tabuleiro[p_linha][p_coluna] == "♛".red 
-				mover_dama1(p_linha, p_coluna, m_linha, m_coluna)
-			else 
-				if @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && diff == 1
-					return comer(p_linha, p_coluna, m_linha, m_coluna, time)
-					
-				elsif @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[p_linha][p_coluna] == "♛".red
-					return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
+			distancia = p_linha-m_linha
+			if @jogo.tabuleiro[m_linha][m_coluna] == "■".black && m_linha >= 0 && m_linha <= @jogo.tabuleiro.length-1
+				if distancia == 1 && @jogo.tabuleiro[p_linha][p_coluna] == @jog1  
+					mover(p_linha, p_coluna, m_linha, m_coluna)
+					return true
+				elsif @jogo.tabuleiro[p_linha][p_coluna] == "♛".red 
+					mover(p_linha, p_coluna, m_linha, m_coluna)
+				end
+			else
+			 	if @jogo.tabuleiro[m_linha][m_coluna] == @jog2 || @jogo.tabuleiro[m_linha][m_coluna] == "♛".blue
+					if @jogo.tabuleiro[p_linha][p_coluna] == "♛".red
+						return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
+					elsif distancia == 1
+						return comer(p_linha, p_coluna, m_linha, m_coluna, time)
+					end
 				else
 					erro(2)
 					return false
 				end
 			end
-
 		else
-			diff = m_linha-p_linha
-			if (@jogo.tabuleiro[m_linha][m_coluna] == "■".black) && (m_linha >= 0) && (m_linha <= @jogo.tabuleiro.length-1)	&& (diff == 1) && @jogo.tabuleiro[p_linha][p_coluna] == @jog2  
-				mover_jog2(p_linha, p_coluna, m_linha, m_coluna)
-				return true
-			elsif (@jogo.tabuleiro[m_linha][m_coluna] == "■".black) && (m_linha >= 0) && (m_linha <= @jogo.tabuleiro.length-1) && @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue 
-				mover_dama2(p_linha, p_coluna, m_linha, m_coluna)
-			else  
-				if @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && diff == 1
-					return comer(p_linha, p_coluna, m_linha, m_coluna, time)
-				elsif @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue
-					return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
+			distancia = m_linha-p_linha
+			if @jogo.tabuleiro[m_linha][m_coluna] == "■".black && m_linha >= 0 && m_linha <= @jogo.tabuleiro.length-1
+				if distancia == 1 && @jogo.tabuleiro[p_linha][p_coluna] == @jog2  
+					mover(p_linha, p_coluna, m_linha, m_coluna)
+					return true
+				elsif @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue 
+					mover(p_linha, p_coluna, m_linha, m_coluna)
+				end
+			else
+			 	if @jogo.tabuleiro[m_linha][m_coluna] == @jog1 || @jogo.tabuleiro[m_linha][m_coluna] == "♛".red
+					if @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue
+						return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
+					elsif distancia == 1
+						return comer(p_linha, p_coluna, m_linha, m_coluna, time)
+					end
 				else
 					erro(2)
 					return false
@@ -145,7 +125,7 @@ class Jogo
  			if sentido_horizontal == "esquerda" 
  				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black
  					insere_peca(m_linha-1,m_coluna-1,"♛".red)
- 				elsif @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black
+ 				elsif sentido_vertical == "baixo" && @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black
  					insere_peca(m_linha+1,m_coluna-1,"♛".red)
  				else
  					comeu = false
@@ -153,7 +133,7 @@ class Jogo
  			elsif sentido_horizontal == "direita" 
  				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black
  					insere_peca(m_linha-1,m_coluna+1,"♛".red)
- 				elsif @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black
+ 				elsif sentido_vertical == "baixo" && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black
  					insere_peca(m_linha+1,m_coluna+1,"♛".red)
  				else 
  					comeu = false
@@ -163,7 +143,7 @@ class Jogo
  		 	if sentido_horizontal == "esquerda" 
  				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black
  					insere_peca(m_linha+1,m_coluna+1,"♛".blue)
- 				elsif @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black
+ 				elsif sentido_vertical == "baixo" && @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black
  					insere_peca(m_linha-1,m_coluna+1,"♛".blue)
  				else
  					comeu = false
@@ -171,7 +151,7 @@ class Jogo
  			elsif sentido_horizontal == "direita" 
  				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black
  					insere_peca(m_linha+1,m_coluna-1,"♛".blue)
- 				elsif @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black
+ 				elsif sentido_vertical == "baixo" && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black
  					insere_peca(m_linha-1,m_coluna-1,"♛".blue)
  				else
  					comeu = false
@@ -189,30 +169,31 @@ class Jogo
  		comeu = true
 
  		if time == 1
-			if sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black	#comer para a esquerda
+			if sentido == "esquerda" && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black	#comer para a esquerda
  				insere_peca(m_linha-1,m_coluna-1,@jog1)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
+ 				
 
- 			elsif sentido == "direita" && @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black 	#comer para a direita
+ 			elsif sentido == "direita" && @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black 	#comer para a direita
  				insere_peca(m_linha-1,m_coluna+1,@jog1)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
+ 				
  			else
  				comeu = false
  			end 			
  		else
- 			if sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black 	#comer para a esquerda
+ 			if sentido == "esquerda" && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black 	#comer para a esquerda
  				insere_peca(m_linha+1,m_coluna+1,@jog2)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
+ 				
 
- 			elsif sentido == "direita" && @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black 	#comer para a direita
+ 			elsif sentido == "direita" && @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black 	#comer para a direita
  				insere_peca(m_linha+1,m_coluna-1,@jog2)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna) 				
+ 							
  			else
  				comeu = false
  			end
  			
  		end
  		if comeu 
+ 			limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
  			decrementa_pecas(time)
  		end
  		return comeu
@@ -242,9 +223,6 @@ class Jogo
  		end
  	end
 
- 	##ehrainha(mlinha,time)
- 	###m == 0
-
  	def dama_sentido_vertical(p_linha, m_linha)
  		 if p_linha < m_linha
  		 	return "baixo"
@@ -253,59 +231,7 @@ class Jogo
  		end
  	end
 
- 	def dama_caminhando_esquerda1(p_coluna,p_linha,m_coluna,m_linha) #time vermelho
- 		coluna = p_coluna-1
- 		(p_linha-1..m_linha).each do |linha|
- 			if @jogo.tabuleiro[linha][coluna] != "■".black #se diferente de preto, nao rola caminhar p/ posicao desejada
- 				return false
- 			end
- 			linha-=1
- 		end
- 		mover_dama1(p_linha,p_coluna,m_linha,m_coluna)
- 		return true 
-
- 	end
-
- 	def dama_caminhando_direita1(p_coluna,p_linha,m_coluna,m_linha) #time vermelho
- 		coluna = p_coluna+1
- 		(p_linha+1..m_linha).each do |linha|
- 			if @jogo.tabuleiro[linha][coluna] != "■".black #se diferente de preto, nao rola caminhar p/ posicao desejada
- 				return false
- 			end
- 			linha+=1
- 		end
- 		mover_dama1(p_linha,p_coluna,m_linha,m_coluna)
- 		return true 
-
- 	end
-
-	def dama_caminhando_esquerda2(p_coluna,p_linha,m_coluna,m_linha) #time azul
- 		coluna = p_coluna+1
- 		(p_linha+1..m_linha).each do |linha|
- 			if @jogo.tabuleiro[linha][coluna] != "■".black #se diferente de preto, nao rola caminhar p/ posicao desejada
- 				return false
- 			end
- 			linha+=1
- 		end
- 		mover_dama2(p_linha,p_coluna,m_linha,m_coluna)
- 		return true 
- 	end
-
-
-	def dama_caminhando_direita2(p_coluna,p_linha,m_coluna,m_linha) #time azul
- 		coluna = p_coluna-1
- 		(p_linha+1..m_linha).each do |linha|
- 			if @jogo.tabuleiro[linha][coluna] != "■".black #se diferente de preto, nao rola caminhar p/ posicao desejada
- 				return false
- 			end
- 			linha-=1
- 		end
- 		mover_dama2(p_linha,p_coluna,m_linha,m_coluna)
- 		return true 
- 	end
-
-
- 	def verifica_dama(linha,coluna,time)
+ 	def transforma_em_dama(linha,coluna,time)
  		if time == 1
  			if linha == 0
  				@jogo.tabuleiro[linha][coluna] = "♛".red

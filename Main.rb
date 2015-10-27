@@ -35,7 +35,7 @@ class Main
 		jogando = true
 		while jogando
 			jogada = valida_dados_inseridos
-			@troca = @main.mover_peca(jogada[0].to_i,jogada[1].to_i,jogada[2].to_i, jogada[3].to_i, @jogador_atual)
+			@troca = @main.efetua_jogada(jogada[0].to_i,jogada[1].to_i,jogada[2].to_i, jogada[3].to_i, @jogador_atual)
 			jogando = verifica_estado_do_jogo #se deu certo, trocar turno e dai eh outro jogador
 			system "clear"
 			desenha_tabuleiro
