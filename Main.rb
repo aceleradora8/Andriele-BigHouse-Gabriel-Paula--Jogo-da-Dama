@@ -1,16 +1,12 @@
 load 'Jogo.rb'
 =begin
 	falta implementar:
-		- controle de erro (se jogador digitou errado, esta perdendo a vez) ok
-		- controlar para que a peca coma somente quando estiver ao lado ok
 		- controle para poder comer mais de uma peca (quando possivel)
-		- controle quando vira rainha (desenhar um caractere diferente, sei la)
-		- quando virar rainha, cuidar o sentido (pois ela tb pode voltar casas)
-		- nao deixar comer para tras ok
-
-
-		-A dama não tá comendo
-		-tem peça caminhando errado
+		- a dama ta louca, caminhando errado
+		- não da pra comer a dama
+		- obrigar a comer
+		- mensagens de erro
+		- placar
 =end
 class Main
 
@@ -28,7 +24,7 @@ class Main
 		system "clear"
 		puts '--- Jogo de Damas ---'
 		puts
-		puts "pressione qualquer tecla para continuar"
+		puts "pressione ENTER para continuar"
 		gets.chomp
 		instrucoes_de_jogo
 		puts

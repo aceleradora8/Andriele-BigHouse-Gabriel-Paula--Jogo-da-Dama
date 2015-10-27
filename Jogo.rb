@@ -99,6 +99,8 @@ class Jogo
 				if @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && diff == 1
 					return comer(p_linha, p_coluna, m_linha, m_coluna, time)
 					
+				elsif @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[p_linha][p_coluna] == "♛".red
+					return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
 				else
 					erro(2)
 					return false
@@ -115,6 +117,8 @@ class Jogo
 			else  
 				if @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && diff == 1
 					return comer(p_linha, p_coluna, m_linha, m_coluna, time)
+				elsif @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue
+					return dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
 				else
 					erro(2)
 					return false
@@ -133,21 +137,59 @@ class Jogo
  		@jogo.tabuleiro[m_linha][m_coluna] = char   	##jogada efetuada
  	end
 
+ 	def dama_comer(p_linha, p_coluna, m_linha, m_coluna, time)
+ 		sentido_horizontal = define_sentido(p_coluna,m_coluna,time)
+ 		sentido_vertical =  dama_sentido_vertical(p_linha, m_linha)
+ 		comeu = true
+ 		if time == 1
+ 			if sentido_horizontal == "esquerda" 
+ 				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black
+ 					insere_peca(m_linha-1,m_coluna-1,"♛".red)
+ 				elsif @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black
+ 					insere_peca(m_linha+1,m_coluna-1,"♛".red)
+ 				else
+ 					comeu = false
+ 				end
+ 			elsif sentido_horizontal == "direita" 
+ 				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black
+ 					insere_peca(m_linha-1,m_coluna+1,"♛".red)
+ 				elsif @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black
+ 					insere_peca(m_linha+1,m_coluna+1,"♛".red)
+ 				else 
+ 					comeu = false
+ 				end
+ 			end
+ 		else
+ 		 	if sentido_horizontal == "esquerda" 
+ 				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black
+ 					insere_peca(m_linha+1,m_coluna+1,"♛".blue)
+ 				elsif @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black
+ 					insere_peca(m_linha-1,m_coluna+1,"♛".blue)
+ 				else
+ 					comeu = false
+ 				end
+ 			elsif sentido_horizontal == "direita" 
+ 				if sentido_vertical == "cima" && @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black
+ 					insere_peca(m_linha+1,m_coluna-1,"♛".blue)
+ 				elsif @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black
+ 					insere_peca(m_linha-1,m_coluna-1,"♛".blue)
+ 				else
+ 					comeu = false
+ 				end
+ 			end
+ 		end
+ 		if comeu
+ 			limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
+ 		end
+ 		return comeu
+ 	end
 
  	def comer(p_linha, p_coluna, m_linha, m_coluna, time) # p = posição atual / m = onde inimigo esta
  		sentido = define_sentido(p_coluna,m_coluna,time)
- 		aux = true
+ 		comeu = true
 
  		if time == 1
- 			if sentido == "esquerda" && @jogo.tabuleiro[p_linha][p_coluna] == "♛".red && (@jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black || @jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black)
- 				insere_peca(m_linha-1,m_coluna-1,"♛".red)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
- 				
- 			elsif sentido == "direita" && @jogo.tabuleiro[p_linha][p_coluna] == "♛".red && (@jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black || @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black)
- 				insere_peca(m_linha-1,m_coluna+1,"♛".red)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
-
- 			elsif sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black	#comer para a esquerda
+			if sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog2 && @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black	#comer para a esquerda
  				insere_peca(m_linha-1,m_coluna-1,@jog1)
  				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
 
@@ -155,19 +197,10 @@ class Jogo
  				insere_peca(m_linha-1,m_coluna+1,@jog1)
  				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
  			else
- 				aux = false
+ 				comeu = false
  			end 			
-
  		else
- 			if sentido == "esquerda" && @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue && (@jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black || @jogo.tabuleiro[m_linha-1][m_coluna+1] == "■".black)
- 				insere_peca(m_linha+1,m_coluna+1,"♛".blue)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
-
-			elsif sentido == "direita" && @jogo.tabuleiro[p_linha][p_coluna] == "♛".blue && (@jogo.tabuleiro[m_linha+1][m_coluna-1] == "■".black || @jogo.tabuleiro[m_linha-1][m_coluna-1] == "■".black)
- 				insere_peca(m_linha+1,m_coluna-1,"♛".blue)
- 				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
-
- 			elsif sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black 	#comer para a esquerda
+ 			if sentido == "esquerda" && @jogo.tabuleiro[m_linha][m_coluna] == @jog1 && @jogo.tabuleiro[m_linha+1][m_coluna+1] == "■".black 	#comer para a esquerda
  				insere_peca(m_linha+1,m_coluna+1,@jog2)
  				limpa_campo(p_linha,p_coluna,m_linha,m_coluna)
 
@@ -175,14 +208,14 @@ class Jogo
  				insere_peca(m_linha+1,m_coluna-1,@jog2)
  				limpa_campo(p_linha,p_coluna,m_linha,m_coluna) 				
  			else
- 				aux = false
+ 				comeu = false
  			end
  			
  		end
- 		if aux 
+ 		if comeu 
  			decrementa_pecas(time)
  		end
- 		return aux
+ 		return comeu
  	end
  	
  	def define_sentido(p_coluna,m_coluna,time)
@@ -211,6 +244,14 @@ class Jogo
 
  	##ehrainha(mlinha,time)
  	###m == 0
+
+ 	def dama_sentido_vertical(p_linha, m_linha)
+ 		 if p_linha < m_linha
+ 		 	return "baixo"
+ 		else 
+ 			return "cima"
+ 		end
+ 	end
 
  	def dama_caminhando_esquerda1(p_coluna,p_linha,m_coluna,m_linha) #time vermelho
  		coluna = p_coluna-1
